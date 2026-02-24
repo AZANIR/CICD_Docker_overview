@@ -1,0 +1,27 @@
+# Приклад docker-compose.yml для навчального проекту
+# Запуск: docker compose up -d
+# Зупинка: docker compose down
+
+services:
+  # Сервіс веб-додатку
+  web:
+    build: .
+    image: my-web-app:latest
+    container_name: web-app
+    ports:
+      - "8080:3000"   # хост:контейнер
+    environment:
+      - NODE_ENV=production
+
+  # Сервіс тестів (залежить від web; приклад для e2e)
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.40.0-jammy
+    container_name: e2e-tests
+    depends_on:
+      - web
+    environment:
+      - BASE_URL=http://web:3000
+    volumes:
+      - ./e2e:/e2e
+    working_dir: /e2e
+    command: npx playwright test

@@ -1,0 +1,46 @@
+# Приклад робочого пайплайну GitHub Actions для курсу «Автомейшен тестери»
+# Файл розміщують у репозиторії: .github/workflows/ci.yml
+# Пайплайн запускається при push у main або при pull request у main
+
+name: CI
+
+# Коли запускати пайплайн
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # Джоб: збірка та тести
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Отримати код з репозиторію
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Встановити Node.js (для прикладу з Playwright/JavaScript)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # 3. Встановити залежності
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Запустити тести (приклад для проекту з Playwright)
+      - name: Run tests
+        run: npm run test
+
+      # 5. (Опційно) завантажити артефакти — звіти, скріншоти
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
